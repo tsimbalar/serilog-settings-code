@@ -10,8 +10,8 @@ namespace Serilog.Settings.Code
 {
     public class CodeSettings : ILoggerSettings
     {
-        private readonly string _cSharpCode;
-        private readonly List<Assembly> _referencedAssemblies;
+        readonly string _cSharpCode;
+        readonly List<Assembly> _referencedAssemblies;
 
         public CodeSettings(string cSharpCode, Assembly[] referencedAssemblies = null)
         {
@@ -31,7 +31,7 @@ namespace Serilog.Settings.Code
                     LoggerConfiguration = loggerConfiguration
                 },
                 options: scriptOptions);
-            var resultState = runTask.Result;
+            runTask.Wait();
         }
 
         public class Globals
