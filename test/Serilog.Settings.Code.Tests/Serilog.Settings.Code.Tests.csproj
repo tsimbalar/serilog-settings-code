@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Serilog.Settings.Code\Serilog.Settings.Code.csproj" />
+    <ProjectReference Include="..\TestDummies\TestDummies.csproj" />
   </ItemGroup>
 </Project>
