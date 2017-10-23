@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using Serilog.Events;
 using Serilog.Settings.Code.Tests.Support;
@@ -115,6 +116,27 @@ LoggerConfiguration
             logger.Information("This should show up");
             var emitted = DummyRollingFileSink.Emitted.FirstOrDefault();
             Assert.NotNull(emitted);
+        }
+
+        [Fact]
+        public void LoadsExternalDependenciesWithHashtagR()
+        {
+            var dllPath = Path.Combine(System.Environment.CurrentDirectory, "TestDummies.dll");
+            var cSharpWithExternalReference = $@"
+#r ""{dllPath}""
+using TestDummies;
+
+LoggerConfiguration
+    .WriteTo.DummyRollingFile(""C:/temp/log.txt"");
+";
+            var logger = new LoggerConfiguration()
+                .ReadFrom.CodeString(cSharpWithExternalReference)
+                .CreateLogger();
+
+            logger.Information("This should show up");
+            var emitted = DummyRollingFileSink.Emitted.FirstOrDefault();
+            Assert.NotNull(emitted);
+
         }
     }
 }
