@@ -23,8 +23,9 @@ namespace Serilog.Settings.Code
         {
             var scriptOptions = ScriptOptions.Default
                 .WithReferences(typeof(ILogger).Assembly)
-                .AddReferences(_referencedAssemblies)
-                ;
+                .WithImports(typeof(ILogger).Namespace)
+                .AddReferences(_referencedAssemblies);
+
             var runTask = CSharpScript.RunAsync(_cSharpCode,
                 globals: new Globals()
                 {

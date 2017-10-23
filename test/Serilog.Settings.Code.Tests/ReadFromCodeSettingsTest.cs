@@ -27,6 +27,76 @@ namespace Serilog.Settings.Code.Tests
         }
 
         [Fact]
+        public void SerilogNameSpaceIsImportedByDefault()
+        {
+            // FakeSink() is an extension method in namespace Serilog
+            var csharpWithBuiltInTypes = @"
+LoggerConfiguration
+    .WriteTo.FakeSink();";
+
+            LogEvent evt = null;
+            var extraReferencedAssemblies = new[] { typeof(ReadFromCodeSettingsTest).Assembly };
+            var logger = new LoggerConfiguration()
+                .ReadFrom.CodeString(csharpWithBuiltInTypes, extraReferencedAssemblies)
+                .WriteTo.Sink(new DelegatingSink(e => evt = e))
+                .CreateLogger();
+
+            logger.Information("This should not show up");
+            Assert.NotNull(evt);
+        }
+
+        [Fact]
+        public void ProcessesConfigurationWithBuiltInTypesWithFullyQualifiedName()
+        {
+            var csharpWithBuiltInTypes = @"
+LoggerConfiguration
+    .WriteTo.FakeSink(
+        new Serilog.Formatting.Json.JsonFormatter(),
+        @""C:\temp\log.log"",
+        Serilog.Events.LogEventLevel.Debug);
+";
+
+            LogEvent evt = null;
+
+            var extraReferencedAssemblies = new[] { typeof(ReadFromCodeSettingsTest).Assembly };
+
+            var logger = new LoggerConfiguration()
+                .ReadFrom.CodeString(csharpWithBuiltInTypes, extraReferencedAssemblies)
+                .WriteTo.Sink(new DelegatingSink(e => evt = e))
+                .CreateLogger();
+
+            logger.Information("This should not show up");
+            Assert.NotNull(evt);
+        }
+
+        [Fact]
+        public void ProcessesConfigurationWithBuiltInTypesWithUsings()
+        {
+            var csharpWithBuiltInTypes = @"
+using Serilog.Formatting.Json;
+using Serilog.Events;
+
+LoggerConfiguration
+    .WriteTo.FakeSink(
+        new JsonFormatter(),
+        @""C:\temp\log.log"",
+        LogEventLevel.Debug);
+";
+
+            LogEvent evt = null;
+
+            var extraReferencedAssemblies = new[] { typeof(ReadFromCodeSettingsTest).Assembly };
+
+            var logger = new LoggerConfiguration()
+                .ReadFrom.CodeString(csharpWithBuiltInTypes, extraReferencedAssemblies)
+                .WriteTo.Sink(new DelegatingSink(e => evt = e))
+                .CreateLogger();
+
+            logger.Information("This should not show up");
+            Assert.NotNull(evt);
+        }
+
+        [Fact]
         public void ProcessesSinksFromExternalDependencies()
         {
             var cSharpWithExternalReference = @"
